@@ -24,7 +24,7 @@ class Explorer(AbstractAgent):
         self.resc = resc           # reference to the rescuer agent
         self.rtime = self.TLIM     # remaining time to explore
 
-        self.grid = {(0,0):{'visited':[],'backtrace':[],'type':''}}
+        self.grid = {(0,0):{'backtrace':[],'type':''}}
         self.pos = (0,0)
 
 
@@ -32,9 +32,7 @@ class Explorer(AbstractAgent):
         nextOptions = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
 
         for opt in nextOptions:
-            if not opt in self.grid[self.pos]['visited'] and not (opt[0]+self.pos[0],opt[1]+self.pos[1]) in self.grid[self.pos]['backtrace']:
-                #print((opt[0]+self.pos[0],opt[1]+self.pos[1]),self.grid[self.pos]['backtrace'])
-                self.grid[self.pos]['visited'].append(opt)
+            if not (opt[0]+self.pos[0],opt[1]+self.pos[1]) in self.grid.keys():
                 return True, opt
 
         return False, (0,0)
@@ -47,10 +45,9 @@ class Explorer(AbstractAgent):
 
         if nextAvaiable:
             nextPoint = (self.pos[0]+move[0],self.pos[1]+move[1])
-            print(self.pos,self.grid[self.pos]['backtrace'],nextPoint)
 
-            if not nextPoint in self.grid:
-                self.grid[nextPoint] = {'visited':[],'backtrace':[],'type':''}
+            if not nextPoint in self.grid.keys():
+                self.grid[nextPoint] = {'backtrace':[],'type':''}
 
             result = self.body.walk(move[0], move[1])
 
@@ -63,7 +60,6 @@ class Explorer(AbstractAgent):
                 self.pos = nextPoint
 
         else:
-            print('back')
             if self.grid[self.pos]['backtrace'] == []:
                 return False
 
