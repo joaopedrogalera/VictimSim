@@ -26,6 +26,8 @@ class Explorer(AbstractAgent):
 
         self.grid = {(0,0):{'backtrace':[],'type':''}}
         self.pos = (0,0)
+        self.walls = []
+        self.victims = {}
 
 
     def chooseNextPoint(self):
@@ -53,11 +55,23 @@ class Explorer(AbstractAgent):
 
             if result == PhysAgent.BUMPED:
                 self.grid[nextPoint]['type'] = "parede"
+                self.walls.append(nextPoint)
 
             if result == PhysAgent.EXECUTED:
                 self.grid[nextPoint]['type'] = "ok"
                 self.grid[nextPoint]['backtrace'].append(self.pos)
                 self.pos = nextPoint
+
+                # check for victim returns -1 if there is no victim or the sequential
+                # the sequential number of a found victim
+                seq = self.body.check_for_victim()
+                if seq >= 0:
+                    vs = self.body.read_vital_signals(seq)
+                    self.rtime -= self.COST_READ
+
+                    self.victims[self.pos] = vs
+                    print("exp: read vital signals of " + str(seq))
+                    print(vs)
 
         else:
             if self.grid[self.pos]['backtrace'] == []:
@@ -72,56 +86,20 @@ class Explorer(AbstractAgent):
             self.pos = nextPoint
 
             self.body.walk(dx, dy)
-            '''
-            # check for victim returns -1 if there is no victim or the sequential
-            # the sequential number of a found victim
-            seq = self.body.check_for_victim()
-            if seq >= 0:
-                vs = self.body.read_vital_signals(seq)
-                self.rtime -= self.COST_READ
-            # print("exp: read vital signals of " + str(seq))
-            # print(vs)
-            '''
 
-        '''
+        print(self.rtime)
         # No more actions, time almost ended
-        if self.rtime < 10.0:
+        if self.rtime < 20.0:
             # time to wake up the rescuer
             # pass the walls and the victims (here, they're empty)
             print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
-            self.resc.go_save_victims([],[])
+            self.resc.go_save_victims(self.walls,self.victims)
             return False
 
-        dx = random.choice([-1, 0, 1])
-
-        if dx == 0:
-           dy = random.choice([-1, 1])
-        else:
-           dy = random.choice([-1, 0, 1])
-
-        # Moves the body to another position
-        result = self.body.walk(dx, dy)
-
         # Update remaining time
-        if dx != 0 and dy != 0:
-            self.rtime -= self.COST_DIAG
-        else:
-            self.rtime -= self.COST_LINE
-
-        # Test the result of the walk action
-        if result == PhysAgent.BUMPED:
-            walls = 1  # build the map- to do
-            # print(self.name() + ": wall or grid limit reached")
-
-        if result == PhysAgent.EXECUTED:
-            # check for victim returns -1 if there is no victim or the sequential
-            # the sequential number of a found victim
-            seq = self.body.check_for_victim()
-            if seq >= 0:
-                vs = self.body.read_vital_signals(seq)
-                self.rtime -= self.COST_READ
-                # print("exp: read vital signals of " + str(seq))
-                # print(vs)
-        '''
+        #if dx != 0 and dy != 0:
+        self.rtime -= 1
+        #else:
+        #    self.rtime -= self.COST_LINE
 
         return True
