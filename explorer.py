@@ -70,8 +70,8 @@ class Explorer(AbstractAgent):
                     self.rtime -= self.COST_READ
 
                     self.victims[self.pos] = vs
-                    print("exp: read vital signals of " + str(seq))
-                    print(vs)
+                    #print("exp: read vital signals of " + str(seq))
+                    #print(vs)
 
         else:
             if self.grid[self.pos]['backtrace'] == []:
@@ -87,7 +87,6 @@ class Explorer(AbstractAgent):
 
             self.body.walk(dx, dy)
 
-        print(self.rtime)
         # No more actions, time almost ended
         if self.rtime < 20.0:
             # time to wake up the rescuer

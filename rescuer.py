@@ -7,6 +7,7 @@ import random
 from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 from abc import ABC, abstractmethod
+from math import sqrt
 
 
 ## Classe que define o Agente Rescuer com um plano fixo
@@ -25,9 +26,6 @@ class Rescuer(AbstractAgent):
         # Starts in IDLE state.
         # It changes to ACTIVE when the map arrives
         self.body.set_state(PhysAgent.IDLE)
-
-        # planning
-        self.__planner()
 
     def go_save_victims(self, walls, victims):
         """ The explorer sends the map containing the walls and
@@ -66,7 +64,59 @@ class Rescuer(AbstractAgent):
 
         print(self.min_dx,self.max_dx,self.min_dy,self.max_dy)
 
+        #planning
+        self.__planner()
         self.body.set_state(PhysAgent.ACTIVE)
+
+    def __custoH(self, pos, dest):
+        return sqrt((pos[0]-dest[0])**2+(pos[1]-dest[1])**2)
+
+    def __Aestrela(self,pos,victim):
+        avaiable = {}
+        checked = {}
+
+        avaiable[pos] = {'G':0,'H':self.__custoH(pos,victim),'pai':None}
+
+        corrente = None
+        while True:
+            custoF = 99999
+            for i in avaiable.keys():
+                if (avaiable[i]['G'] + avaiable[i]['H']) < custoF:
+                    custoF = avaiable[i]['G'] + avaiable[i]['H']
+                    corrente = i
+
+            if not corrente:
+                break
+
+            checked[corrente] = avaiable[corrente]
+            del avaiable[corrente]
+            if corrente == victim:
+                break
+
+            nextOptions = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+            for opt in nextOptions:
+                nextPosOpt = (corrente[0]+opt[0],corrente[1]+opt[1])
+                if nextPosOpt in checked.keys() or nextPosOpt in self.walls or nextPosOpt[0] < self.min_dx or nextPosOpt[0] > self.max_dx or nextPosOpt[1] < self.min_dy or nextPosOpt[1] > self.max_dy:
+                    continue
+
+                if nextPosOpt not in avaiable.keys():
+                    avaiable[nextPosOpt] = {'G':checked[corrente]['G']+1,'H':self.__custoH(nextPosOpt,victim),'pai':corrente}
+                elif (checked[corrente]['G']+1) < avaiable[nextPosOpt]['G']:
+                    avaiable[nextPosOpt]['G'] = checked[corrente]['G']+1
+                    avaiable[nextPosOpt]['pai'] = corrente
+
+        #Monta o caminho
+        if not corrente:
+            return False
+
+        atual = victim
+        caminho = []
+
+        while not atual == pos:
+            novoMov = (atual[0] - checked[atual]['pai'][0], atual[1] - checked[atual]['pai'][1])
+            caminho.append(novoMov)
+            atual = checked[atual]['pai']
+        return list(reversed(caminho))
 
 
     def __planner(self):
@@ -74,18 +124,16 @@ class Rescuer(AbstractAgent):
         victims. Further actions may be necessary and should be added in the
         deliberata method"""
 
+        #Calcula o custo da origem para cada vítima passada pelo explorer
+        pos = (0,0)
+        for victim in self.victims.keys():
+            print(self.__Aestrela(pos,victim))
+
         # This is a off-line trajectory plan, each element of the list is
         # a pair dx, dy that do the agent walk in the x-axis and/or y-axis
         self.plan.append((0,1))
-        self.plan.append((1,1))
-        self.plan.append((1,0))
-        self.plan.append((1,-1))
-        self.plan.append((0,-1))
-        self.plan.append((-1,0))
-        self.plan.append((-1,-1))
-        self.plan.append((-1,-1))
-        self.plan.append((-1,1))
-        self.plan.append((1,1))
+        self.plan.append((0,1))
+        self.plan.append((0,1))
 
     def deliberate(self) -> bool:
         """ This is the choice of the next action. The simulator calls this
