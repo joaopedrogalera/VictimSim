@@ -99,10 +99,15 @@ class Rescuer(AbstractAgent):
                 if nextPosOpt in checked.keys() or nextPosOpt in self.walls or nextPosOpt[0] < self.min_dx or nextPosOpt[0] > self.max_dx or nextPosOpt[1] < self.min_dy or nextPosOpt[1] > self.max_dy:
                     continue
 
+                if opt[0] != 0 and opt[1] != 0:
+                    movCost = self.COST_DIAG
+                else:
+                    movCost = self.COST_LINE
+                
                 if nextPosOpt not in avaiable.keys():
-                    avaiable[nextPosOpt] = {'G':checked[corrente]['G']+1,'H':self.__custoH(nextPosOpt,victim),'pai':corrente}
-                elif (checked[corrente]['G']+1) < avaiable[nextPosOpt]['G']:
-                    avaiable[nextPosOpt]['G'] = checked[corrente]['G']+1
+                    avaiable[nextPosOpt] = {'G':checked[corrente]['G']+movCost,'H':self.__custoH(nextPosOpt,victim),'pai':corrente}
+                elif (checked[corrente]['G']+movCost) < avaiable[nextPosOpt]['G']:
+                    avaiable[nextPosOpt]['G'] = checked[corrente]['G']+movCost
                     avaiable[nextPosOpt]['pai'] = corrente
 
         #Monta o caminho
@@ -142,6 +147,7 @@ class Rescuer(AbstractAgent):
                     distancia = len(_caminho)
                     escolha = victim
                     caminho = _caminho
+                    
 
             posAux = pos
             for i in caminho:

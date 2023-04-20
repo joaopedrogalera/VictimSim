@@ -52,6 +52,11 @@ class Explorer(AbstractAgent):
                 self.grid[nextPoint] = {'backtrace':[],'type':''}
 
             result = self.body.walk(move[0], move[1])
+            
+            if move[0] != 0 and move[1] != 0:
+                self.rtime -= self.COST_DIAG
+            else:
+                self.rtime -= self.COST_LINE
 
             if result == PhysAgent.BUMPED:
                 self.grid[nextPoint]['type'] = "parede"
@@ -67,6 +72,7 @@ class Explorer(AbstractAgent):
                 seq = self.body.check_for_victim()
                 if seq >= 0:
                     vs = self.body.read_vital_signals(seq)
+                    print(vs[7])
                     self.rtime -= self.COST_READ
 
                     self.victims[self.pos] = vs
@@ -75,6 +81,7 @@ class Explorer(AbstractAgent):
 
         else:
             if self.grid[self.pos]['backtrace'] == []:
+                self.resc.go_save_victims(self.walls,self.victims)
                 return False
 
             nextPoint = self.grid[self.pos]['backtrace'][-1]
@@ -86,19 +93,18 @@ class Explorer(AbstractAgent):
             self.pos = nextPoint
 
             self.body.walk(dx, dy)
+            
+            if dx != 0 and dy != 0:
+                self.rtime -= self.COST_DIAG
+            else:
+                self.rtime -= self.COST_LINE
 
         # No more actions, time almost ended
-        if self.rtime < 20.0:
+        if self.rtime < 50.0:
             # time to wake up the rescuer
             # pass the walls and the victims (here, they're empty)
             print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
             self.resc.go_save_victims(self.walls,self.victims)
             return False
-
-        # Update remaining time
-        #if dx != 0 and dy != 0:
-        self.rtime -= 1
-        #else:
-        #    self.rtime -= self.COST_LINE
 
         return True
