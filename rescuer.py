@@ -77,8 +77,8 @@ class Rescuer(AbstractAgent):
 
         avaiable[pos] = {'G':0,'H':self.__custoH(pos,victim),'pai':None}
 
-        corrente = None
         while True:
+            corrente = None
             custoF = 99999
             for i in avaiable.keys():
                 if (avaiable[i]['G'] + avaiable[i]['H']) < custoF:
@@ -124,16 +124,34 @@ class Rescuer(AbstractAgent):
         victims. Further actions may be necessary and should be added in the
         deliberata method"""
 
-        #Calcula o custo da origem para cada vítima passada pelo explorer
+        auxVictims = self.victims
         pos = (0,0)
-        for victim in self.victims.keys():
-            print(self.__Aestrela(pos,victim))
+        while auxVictims:
+            gravidade = 100
+            distancia = 99999
+            caminho = []
+            for victim in auxVictims.keys():
+                _caminho = self.__Aestrela(pos,victim)
+                
+                if int(auxVictims[victim][7]) < gravidade:
+                    gravidade = int(auxVictims[victim][7])
+                    distancia = len(_caminho)
+                    escolha = victim
+                    caminho = _caminho
+                elif int(auxVictims[victim][7]) == gravidade and len(_caminho) < distancia:
+                    distancia = len(_caminho)
+                    escolha = victim
+                    caminho = _caminho
 
-        # This is a off-line trajectory plan, each element of the list is
-        # a pair dx, dy that do the agent walk in the x-axis and/or y-axis
-        self.plan.append((0,1))
-        self.plan.append((0,1))
-        self.plan.append((0,1))
+            posAux = pos
+            for i in caminho:
+                self.plan.append(i)
+
+                posAux = (posAux[0]+i[0],posAux[1]+i[1])
+                if posAux in auxVictims.keys():
+                    del auxVictims[posAux]
+
+            pos = escolha
 
     def deliberate(self) -> bool:
         """ This is the choice of the next action. The simulator calls this
