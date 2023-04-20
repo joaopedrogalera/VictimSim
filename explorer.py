@@ -72,7 +72,6 @@ class Explorer(AbstractAgent):
                 seq = self.body.check_for_victim()
                 if seq >= 0:
                     vs = self.body.read_vital_signals(seq)
-                    print(vs[7])
                     self.rtime -= self.COST_READ
 
                     self.victims[self.pos] = vs
@@ -100,7 +99,7 @@ class Explorer(AbstractAgent):
                 self.rtime -= self.COST_LINE
 
         # No more actions, time almost ended
-        if self.rtime < 50.0:
+        if self.rtime < 10.0:
             # time to wake up the rescuer
             # pass the walls and the victims (here, they're empty)
             print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
