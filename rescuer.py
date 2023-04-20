@@ -132,7 +132,7 @@ class Rescuer(AbstractAgent):
             caminho = []
             for victim in auxVictims.keys():
                 _caminho = self.__Aestrela(pos,victim)
-                
+
                 if int(auxVictims[victim][7]) < gravidade:
                     gravidade = int(auxVictims[victim][7])
                     distancia = len(_caminho)
@@ -152,6 +152,11 @@ class Rescuer(AbstractAgent):
                     del auxVictims[posAux]
 
             pos = escolha
+
+        #Retorna a origem
+        _caminho = self.__Aestrela(pos,(0,0))
+        for i in _caminho:
+            self.plan.append(i)
 
     def deliberate(self) -> bool:
         """ This is the choice of the next action. The simulator calls this
