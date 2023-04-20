@@ -121,7 +121,7 @@ class Rescuer(AbstractAgent):
             novoMov = (atual[0] - checked[atual]['pai'][0], atual[1] - checked[atual]['pai'][1])
             caminho.append(novoMov)
             atual = checked[atual]['pai']
-        return list(reversed(caminho))
+        return {'caminho':list(reversed(caminho)),'custo':checked[victim]['G']}
 
 
     def __planner(self):
@@ -140,13 +140,13 @@ class Rescuer(AbstractAgent):
 
                 if int(auxVictims[victim][7]) < gravidade:
                     gravidade = int(auxVictims[victim][7])
-                    distancia = len(_caminho)
+                    distancia = _caminho['custo']
                     escolha = victim
-                    caminho = _caminho
-                elif int(auxVictims[victim][7]) == gravidade and len(_caminho) < distancia:
-                    distancia = len(_caminho)
+                    caminho = _caminho['caminho']
+                elif int(auxVictims[victim][7]) == gravidade and _caminho['custo'] < distancia:
+                    distancia = _caminho['custo']
                     escolha = victim
-                    caminho = _caminho
+                    caminho = _caminho['caminho']
                     
 
             posAux = pos
@@ -161,7 +161,7 @@ class Rescuer(AbstractAgent):
 
         #Retorna a origem
         _caminho = self.__Aestrela(pos,(0,0))
-        for i in _caminho:
+        for i in _caminho['caminho']:
             self.plan.append(i)
 
     def deliberate(self) -> bool:
