@@ -191,7 +191,11 @@ class Explorer(AbstractAgent):
             else:
                 self.rtime -= self.COST_LINE
 
-            self.body.walk(dx,dy)
+            result = self.body.walk(dx,dy)
+            if result == PhysAgent.BUMPED:
+                print('Agente se perdeu. Sem tempo hábil para voltar! Acionando rescuer')
+                self.resc.go_save_victims(self.walls,self.victims)
+                return False
 
         #Atualiza caminho para a base
         if not self.backHome:
