@@ -38,6 +38,14 @@ class Explorer(AbstractAgent):
         self.backHome = False
         self.caminhoHome = {'caminho':[],'custo':0}
 
+    def chamaRescuer(self):
+        for x in range(self.min_dx, self.max_dx):
+            for y in range(self.min_dy, self.max_dy):
+                if not (x,y) in self.grid:
+                    self.walls.append((x,y))
+        
+        self.resc.go_save_victims(self.walls,self.victims)
+
     def __custoH(self, pos, dest):
         return sqrt((pos[0]-dest[0])**2+(pos[1]-dest[1])**2)
 
@@ -156,7 +164,7 @@ class Explorer(AbstractAgent):
 
             else:
                 if self.grid[self.pos]['backtrace'] == []:
-                    self.resc.go_save_victims(self.walls,self.victims)
+                    self.chamaRescuer()
                     return False
 
                 nextPoint = self.grid[self.pos]['backtrace'][-1]
@@ -179,7 +187,7 @@ class Explorer(AbstractAgent):
                 print("Pouco tempo restante. Voltando à base")
 
             if not self.caminhoHome['caminho']:
-                self.resc.go_save_victims(self.walls,self.victims)
+                self.chamaRescuer()
                 return False
 
             dx = self.caminhoHome['caminho'][0][0]
@@ -194,7 +202,7 @@ class Explorer(AbstractAgent):
             result = self.body.walk(dx,dy)
             if result == PhysAgent.BUMPED:
                 print('Agente se perdeu. Sem tempo hábil para voltar! Acionando rescuer')
-                self.resc.go_save_victims(self.walls,self.victims)
+                self.chamaRescuer()
                 return False
 
         #Atualiza caminho para a base
