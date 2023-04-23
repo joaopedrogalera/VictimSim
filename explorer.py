@@ -39,8 +39,8 @@ class Explorer(AbstractAgent):
         self.caminhoHome = {'caminho':[],'custo':0}
 
     def chamaRescuer(self):
-        for x in range(self.min_dx, self.max_dx):
-            for y in range(self.min_dy, self.max_dy):
+        for x in range(self.min_dx-1, self.max_dx+1):
+            for y in range(self.min_dy-1, self.max_dy+1):
                 if not (x,y) in self.grid:
                     self.walls.append((x,y))
         
@@ -64,7 +64,7 @@ class Explorer(AbstractAgent):
                     corrente = i
 
             if not corrente:
-                break
+                return False
 
             checked[corrente] = avaiable[corrente]
             del avaiable[corrente]
@@ -89,9 +89,6 @@ class Explorer(AbstractAgent):
                     avaiable[nextPosOpt]['pai'] = corrente
 
         #Monta o caminho
-        if not corrente:
-            return False
-
         atual = dest
         caminho = []
 

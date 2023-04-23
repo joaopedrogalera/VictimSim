@@ -86,7 +86,7 @@ class Rescuer(AbstractAgent):
                     corrente = i
 
             if not corrente:
-                break
+                return False
 
             checked[corrente] = avaiable[corrente]
             del avaiable[corrente]
@@ -111,9 +111,6 @@ class Rescuer(AbstractAgent):
                     avaiable[nextPosOpt]['pai'] = corrente
 
         #Monta o caminho
-        if not corrente:
-            return False
-
         atual = victim
         caminho = []
 
